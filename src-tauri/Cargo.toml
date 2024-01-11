@@ -1,4 +1,9 @@
-workspace = { members = ["life_progress_cli"] }
+[workspace] 
+members = [ 
+  "crates/creeper",
+  "crates/life_progress_core"
+]
+
 [package]
 name = "app"
 version = "0.1.0"
