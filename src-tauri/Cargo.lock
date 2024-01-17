@@ -445,6 +445,8 @@ dependencies = [
  "dirs",
  "reqwest",
  "select",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

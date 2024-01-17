@@ -7,6 +7,7 @@ use select::predicate::{Class, Name};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashMap;
+use std::env;
 use std::fs::{self, metadata, File};
 use std::io::Write;
 use std::path::PathBuf;
@@ -63,7 +64,6 @@ pub fn fetch_data() -> Result<HashMap<String, CountryInfo>> {
                 set_tmp_file_path(&hashmap)?;
                 Ok(hashmap)
             } else {
-                println!("error");
                 // Network error, use default expectancy data
                 Ok(receive_default_expectancy()?)
             }
@@ -72,31 +72,31 @@ pub fn fetch_data() -> Result<HashMap<String, CountryInfo>> {
 }
 
 fn receive_default_expectancy() -> Result<HashMap<String, CountryInfo>> {
-    let json = fs::read_to_string("./default_expectancy.json")?;
+    let default_expectancy_path = env::current_dir()?.join("default_expectancy.json");
+    let json = fs::read_to_string(default_expectancy_path)?;
     Ok(serde_json::from_str::<HashMap<String, CountryInfo>>(&json)?)
 }
 
-fn fetch() -> Result<HashMap<String, CountryInfo>, String> {
-    return Err("in".into());
-    // let mut result: HashMap<String, CountryInfo> = HashMap::new();
-    // let resp = reqwest::blocking::get(FETCH_URL)?.text()?;
-    // let document = Document::from(resp.as_str());
-    // if let Some(target_table) = document.find(Class("wikitable")).nth(3) {
-    //     let tbody = target_table.find(Name("tbody")).next().unwrap();
-    //     println!("{:?}", tbody);
+fn fetch() -> Result<HashMap<String, CountryInfo>> {
+    let mut result: HashMap<String, CountryInfo> = HashMap::new();
+    let resp = reqwest::blocking::get(FETCH_URL)?.text()?;
+    let document = Document::from(resp.as_str());
+    if let Some(target_table) = document.find(Class("wikitable")).nth(3) {
+        let tbody = target_table.find(Name("tbody")).next().unwrap();
+        println!("{:?}", tbody);
 
-    //     for tr in tbody.find(Name("tr")).skip(2) {
-    //         let mut tds = tr.find(Name("td")).take(4);
-    //         if let Some(country_name) = extract_country_name(tds.next()) {
-    //             let all = tds.next().unwrap().text().trim().parse::<f32>()?;
-    //             let male = tds.next().unwrap().text().trim().parse::<f32>()?;
-    //             let female = tds.next().unwrap().text().trim().parse::<f32>()?;
-    //             result.insert(country_name, CountryInfo { all, male, female });
-    //         }
-    //     }
-    // }
+        for tr in tbody.find(Name("tr")).skip(2) {
+            let mut tds = tr.find(Name("td")).take(4);
+            if let Some(country_name) = extract_country_name(tds.next()) {
+                let all = tds.next().unwrap().text().trim().parse::<f32>()?;
+                let male = tds.next().unwrap().text().trim().parse::<f32>()?;
+                let female = tds.next().unwrap().text().trim().parse::<f32>()?;
+                result.insert(country_name, CountryInfo { all, male, female });
+            }
+        }
+    }
 
-    // Ok(result)
+    Ok(result)
 }
 
 fn extract_country_name(node: Option<Node>) -> Option<String> {
