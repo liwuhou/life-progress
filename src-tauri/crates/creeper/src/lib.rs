@@ -14,11 +14,29 @@ use std::path::PathBuf;
 
 const FETCH_URL: &str = "https://en.wikipedia.org/wiki/List_of_countries_by_life_expectancy";
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CountryInfo {
-    pub all: f32,
-    pub male: f32,
-    pub female: f32,
+    pub all: f64,
+    pub male: f64,
+    pub female: f64,
+}
+
+pub fn get_data() -> Result<HashMap<String, CountryInfo>> {
+    match has_cache() {
+        Ok(true) => {
+            let json = fs::read_to_string(get_tmp_file_path())?;
+            Ok(serde_json::from_str::<HashMap<String, CountryInfo>>(&json)?)
+        }
+        _ => {
+            if let Ok(hashmap) = fetch() {
+                set_tmp_file_path(&hashmap)?;
+                Ok(hashmap)
+            } else {
+                // Network error, use default expectancy data
+                Ok(receive_default_expectancy()?)
+            }
+        }
+    }
 }
 
 fn ensure_tmp_exist() -> Result<()> {
@@ -45,30 +63,37 @@ fn set_tmp_file_path(content: &HashMap<String, CountryInfo>) -> Result<()> {
     Ok(())
 }
 
+fn calculate_common(content: &HashMap<String, CountryInfo>) -> CountryInfo {
+    let mut total_all = 0.0;
+    let mut total_male = 0.0;
+    let mut total_female = 0.0;
+    let total = content.len() as f64;
+
+    for (_, info) in content {
+        total_all += info.all;
+        total_male += info.male;
+        total_female += info.female
+    }
+
+    CountryInfo {
+        all: shave_round(total_all / total, None),
+        male: shave_round(total_male / total, None),
+        female: shave_round(total_female / total, None),
+    }
+}
+
+pub fn shave_round(num: f64, place: Option<u32>) -> f64 {
+    let base = 10_u32.pow(place.unwrap_or(2)) as f64;
+
+    (num * base).round() / base
+}
+
 fn has_cache() -> Result<bool> {
     if let Ok(metadata) = metadata(get_tmp_file_path()) {
         return Ok(metadata.is_file());
     }
 
     Ok(false)
-}
-
-pub fn get_data() -> Result<HashMap<String, CountryInfo>> {
-    match has_cache() {
-        Ok(true) => {
-            let json = fs::read_to_string(get_tmp_file_path())?;
-            Ok(serde_json::from_str::<HashMap<String, CountryInfo>>(&json)?)
-        }
-        _ => {
-            if let Ok(hashmap) = fetch() {
-                set_tmp_file_path(&hashmap)?;
-                Ok(hashmap)
-            } else {
-                // Network error, use default expectancy data
-                Ok(receive_default_expectancy()?)
-            }
-        }
-    }
 }
 
 fn receive_default_expectancy() -> Result<HashMap<String, CountryInfo>> {
@@ -88,13 +113,15 @@ fn fetch() -> Result<HashMap<String, CountryInfo>> {
         for tr in tbody.find(Name("tr")).skip(2) {
             let mut tds = tr.find(Name("td")).take(4);
             if let Some(country_name) = extract_country_name(tds.next()) {
-                let all = tds.next().unwrap().text().trim().parse::<f32>()?;
-                let male = tds.next().unwrap().text().trim().parse::<f32>()?;
-                let female = tds.next().unwrap().text().trim().parse::<f32>()?;
+                let all = tds.next().unwrap().text().trim().parse::<f64>()?;
+                let male = tds.next().unwrap().text().trim().parse::<f64>()?;
+                let female = tds.next().unwrap().text().trim().parse::<f64>()?;
                 result.insert(country_name, CountryInfo { all, male, female });
             }
         }
     }
+    // Insert average
+    result.insert(String::from("Common"), calculate_common(&result));
 
     Ok(result)
 }
