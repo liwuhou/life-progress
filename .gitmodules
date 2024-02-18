@@ -1,4 +1,4 @@
-[submodule "life_progress_core"]
-	path = src-tauri/crates/life_progress_core
-	url = https://github.com/liwuhou/life_progress_core.git
+[submodule "life-progress-core"]
+	path = src-tauri/crates/life-progress-core
+	url = https://github.com/liwuhou/life-progress-core.git
   branch = master

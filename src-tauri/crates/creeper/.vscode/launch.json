@@ -9,12 +9,7 @@
       "request": "launch",
       "name": "Debug unit tests in library 'creeper'",
       "cargo": {
-        "args": [
-          "test",
-          "--no-run",
-          "--lib",
-          "--package=creeper"
-        ],
+        "args": ["test", "--no-run", "--lib", "--package=creeper"],
         "filter": {
           "name": "creeper",
           "kind": "lib"
@@ -28,11 +23,7 @@
       "request": "launch",
       "name": "Debug executable 'creeper'",
       "cargo": {
-        "args": [
-          "build",
-          "--bin=creeper",
-          "--package=creeper"
-        ],
+        "args": ["build", "--bin=creeper", "--package=creeper"],
         "filter": {
           "name": "creeper",
           "kind": "bin"
@@ -46,12 +37,7 @@
       "request": "launch",
       "name": "Debug unit tests in executable 'creeper'",
       "cargo": {
-        "args": [
-          "test",
-          "--no-run",
-          "--bin=creeper",
-          "--package=creeper"
-        ],
+        "args": ["test", "--no-run", "--bin=creeper", "--package=creeper"],
         "filter": {
           "name": "creeper",
           "kind": "bin"
@@ -63,16 +49,11 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in library 'life_progress_core'",
+      "name": "Debug unit tests in library 'life-progress-core'",
       "cargo": {
-        "args": [
-          "test",
-          "--no-run",
-          "--lib",
-          "--package=life_progress_core"
-        ],
+        "args": ["test", "--no-run", "--lib", "--package=life-progress-core"],
         "filter": {
-          "name": "life_progress_core",
+          "name": "life-progress-core",
           "kind": "lib"
         }
       },
@@ -84,11 +65,7 @@
       "request": "launch",
       "name": "Debug executable 'app'",
       "cargo": {
-        "args": [
-          "build",
-          "--bin=app",
-          "--package=app"
-        ],
+        "args": ["build", "--bin=app", "--package=app"],
         "filter": {
           "name": "app",
           "kind": "bin"
@@ -102,12 +79,7 @@
       "request": "launch",
       "name": "Debug unit tests in executable 'app'",
       "cargo": {
-        "args": [
-          "test",
-          "--no-run",
-          "--bin=app",
-          "--package=app"
-        ],
+        "args": ["test", "--no-run", "--bin=app", "--package=app"],
         "filter": {
           "name": "app",
           "kind": "bin"
