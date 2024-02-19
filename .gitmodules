@@ -2,3 +2,7 @@
 	path = src-tauri/crates/life-progress-core
 	url = https://github.com/liwuhou/life-progress-core.git
   branch = master
+[submodule "src-tauri/crates/lifespan-crawler"]
+	path = src-tauri/crates/lifespan-crawler
+	url = git@github.com:liwuhou/lifespan-crawler.git
+  branch = master

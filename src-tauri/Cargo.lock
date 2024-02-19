@@ -69,7 +69,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "dirs",
- "life-progress-core",
+ "life_progress_core",
  "serde",
  "serde_json",
  "tauri",
@@ -438,18 +438,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b540bd8bc810d3885c6ea91e2018302f68baba2129ab3e88f32389ee9370880d"
 dependencies = [
  "cfg-if",
-]
-
-[[package]]
-name = "creeper"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "dirs",
- "reqwest",
- "select",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -1606,12 +1594,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "life-progress-core"
+name = "life_progress_core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
- "creeper",
+ "lifespan_crawler",
+]
+
+[[package]]
+name = "lifespan_crawler"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dirs",
+ "reqwest",
+ "select",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
