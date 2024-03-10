@@ -25,7 +25,7 @@ serde_json = "1.0"
 anyhow = "1.0.79"
 dirs = "5.0.1"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.5.4", features = ["system-tray"] }
+tauri = { version = "1.5.4", features = ["system-tray", "icon-png"] }
 chrono = "0.4.31"
 life_progress_core = { path = "./crates/life-progress-core"}
 
