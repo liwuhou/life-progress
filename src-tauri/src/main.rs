@@ -2,29 +2,39 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use app as lib;
-use tauri::{Icon, SystemTray, SystemTrayEvent};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 
 fn main() {
-    let tray = SystemTray::new();
-
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![])
-        .system_tray(tray)
-        .on_system_tray_event(|app, event| match event {
-            SystemTrayEvent::LeftClick { .. } => {
-                println!("I'm clicked");
-            }
-            _ => {}
-        })
         .setup(|app| {
-            if lib::is_init_done()? {
-                // Update system icon
-                let icon_path = lib::generate_progree_icon()?;
-            } else {
-                // Show the init windows
-            }
+            let icon = app
+                .default_window_icon()
+                .cloned()
+                .expect("missing configured application icon");
+
+            TrayIconBuilder::with_id("main")
+                .icon(icon)
+                .icon_as_template(true)
+                .on_tray_icon_event(|_tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        println!("I'm clicked");
+                    }
+                })
+                .build(app)?;
+
+            #[cfg(target_os = "macos")]
+            app.handle()
+                .set_activation_policy(tauri::ActivationPolicy::Accessory)?;
+
+            let _profile = lib::load_configured_profile()?;
+
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("error while running Tauri application");
 }
