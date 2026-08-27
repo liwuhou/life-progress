@@ -1,8 +1,57 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Life Progress</title>
-  </head>
-  <body></body>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Life Progress 设置</title>
+<style>
+:root{--ink:#1d1d1f;--muted:#6e6e73;--line:#d8d8dc;--blue:#007aff}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);font:14px -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}
+main{max-width:560px;margin:auto;padding:36px 32px}h1{margin:0 0 7px;font-size:28px;letter-spacing:-.03em}header p{margin:0 0 28px;color:var(--muted)}
+section{padding:22px 0;border-top:1px solid var(--line)}h2{font-size:16px;margin:0 0 16px}label{display:block;margin:12px 0 6px;font-weight:600}
+input,select,button{font:inherit}input:not([type=checkbox]),select{width:100%;height:40px;padding:0 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink)}
+.select{position:relative;display:block}.select:after,.toggle:after{content:"";position:absolute;right:14px;top:50%;width:7px;height:7px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:translateY(-65%) rotate(45deg);pointer-events:none}.select select{-webkit-appearance:none;appearance:none;padding-right:34px;line-height:40px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.combo{position:relative}.combo input{padding-right:38px}.toggle{position:absolute;right:1px;top:1px;width:36px;height:38px;border:0;background:transparent;color:transparent;cursor:pointer}
+.list{position:absolute;z-index:5;top:45px;left:0;right:0;max-height:190px;overflow:auto;padding:5px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px #0002}.list[hidden]{display:none}.option{padding:9px;border-radius:7px;cursor:pointer}.option:hover{background:#eaf4ff;color:#005ecb}
+.hint{margin:6px 0 0;color:var(--muted);font-size:12px}.check{display:flex;gap:8px;align-items:center;font-weight:500}.check input{accent-color:var(--blue)}
+.range{display:flex;gap:12px;align-items:center}.range input{height:auto;accent-color:var(--blue)}.range output{min-width:42px;text-align:right;color:var(--muted)}
+.save{width:100%;height:42px;border:0;border-radius:9px;background:var(--blue);color:#fff;font-weight:650;cursor:pointer}#error{min-height:20px;margin-top:12px;color:#d70015}#status{min-height:20px;margin-top:12px;color:#248a3d;text-align:center}
+@media(max-width:480px){main{padding:26px 20px}.row{grid-template-columns:1fr;gap:0}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>设置</h1><p>让时间的提醒保持在你身边。</p></header>
+<section>
+<h2>个人资料</h2>
+<div class="row"><div><label for="birthday">生日</label><input id="birthday" type="date"></div><div><label for="gender">性别（可选）</label><span class="select"><select id="gender"><option value="">总体</option><option value="male">男性</option><option value="female">女性</option></select></span></div></div>
+<label for="nation">国家或地区</label><div class="combo"><input id="nation" placeholder="输入名称搜索" autocomplete="off"><button class="toggle" id="nation-toggle" type="button" aria-label="展开国家或地区列表"></button><div class="list" id="nation-list" hidden></div></div>
+<p class="hint">选择后将保存为寿命数据中的规范名称。</p>
+</section>
+<section>
+<h2>托盘展示</h2>
+<div class="row"><div><label for="metric">生命指标</label><span class="select"><select id="metric"><option value="remaining">剩余人生</option><option value="elapsed">已过人生</option></select></span></div><div><label for="style">图标样式</label><span class="select"><select id="style"><option value="progress_bar">横向进度条</option><option value="percent">百分比</option><option value="ring_progress">圆环</option><option value="short_text">短文案</option><option value="custom">自定义文案</option><option value="threshold_bar">阈值条</option><option value="rainbow_threshold">彩虹阈值条</option><option value="bar_chart">柱状图</option></select></span></div></div>
+<label for="color-mode">颜色模式</label><span class="select"><select id="color-mode"><option value="monochrome">单色</option><option value="threshold">阈值颜色</option></select></span>
+<div class="row"><div><label for="threshold-lower">阈值下限</label><input id="threshold-lower" type="number" min="0" max="99" step="1"></div><div><label for="threshold-upper">阈值上限</label><input id="threshold-upper" type="number" min="1" max="100" step="1"></div></div>
+<p class="hint">低于下限为红色，范围内为橙色，高于上限为绿色。</p>
+<label for="width">进度条长度（pt）</label><div class="range"><input id="width" type="range" min="22" max="200" step="2" value="60"><output id="width-value">60</output></div>
+<label for="template">右侧文案模板</label><input id="template" value="{mode} {percent}% · {days}天"><p class="hint">可用变量：{mode}、{percent}、{days}</p>
+<label class="check"><input id="show" type="checkbox" checked>显示右侧文案</label>
+</section>
+<section><button class="save" id="save">保存设置</button><div id="error" role="alert"></div><div id="status" aria-live="polite"></div></section>
+</main>
+<script>
+const invoke=window.__TAURI__.core.invoke;
+const $=id=>document.getElementById(id);
+const input=$("nation"),list=$("nation-list"),width=$("width"),lower=$("threshold-lower"),upper=$("threshold-upper");
+function closeList(){list.hidden=true;input.setAttribute('aria-expanded','false')}
+function render(names){list.innerHTML=names.slice(0,8).map(n=>`<div class="option" role="option">${n}</div>`).join('');list.querySelectorAll('.option').forEach(o=>o.onclick=()=>{input.value=o.textContent;closeList()});list.hidden=false;input.setAttribute('aria-expanded','true')}
+input.oninput=async()=>{try{render(await invoke('search_nations',{query:input.value}))}catch(e){$("error").textContent=e}};
+$("nation-toggle").onclick=async()=>{if(list.hidden)try{render(await invoke('search_nations',{query:''}))}catch(e){$("error").textContent=e}else closeList()};
+document.onclick=e=>{if(!e.target.closest('.combo'))closeList()};
+width.oninput=()=>$("width-value").textContent=width.value;
+(async()=>{try{const s=await invoke('get_settings');if(s[0]){$("birthday").value=s[0].birthday;$("gender").value=s[0].gender||'';input.value=s[0].nation}const d=s[1];$("metric").value=d.metric;$("style").value=d.style;$("color-mode").value=d.color_mode||'monochrome';$("template").value=d.title_template;$("show").checked=d.show_title;width.value=d.icon_width||60;lower.value=d.threshold_boundaries?.lower ?? 30;upper.value=d.threshold_boundaries?.upper ?? 70;width.oninput()}catch(e){$("error").textContent=e}})();
+$("save").onclick=async()=>{try{await invoke('save_settings',{birthday:$('birthday').value,gender:$('gender').value||null,nation:input.value,preferences:{metric:$('metric').value,style:$('style').value,show_title:$('show').checked,title_template:$('template').value,icon_width:Number(width.value),color_mode:$('color-mode').value,threshold_boundaries:{lower:Number(lower.value),upper:Number(upper.value)},border_radius:20}});$("error").textContent='';$("status").textContent='已保存'}catch(e){$("status").textContent='';$("error").textContent=e}};
+</script>
+</body>
 </html>

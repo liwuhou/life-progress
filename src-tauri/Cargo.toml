@@ -25,8 +25,10 @@ serde_json = "1.0"
 anyhow = "1.0.79"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "2.11.5", features = ["tray-icon", "image-png"] }
+toml = "0.8"
 chrono = "0.4.31"
 life_progress_core = { path = "./crates/life-progress-core"}
+
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

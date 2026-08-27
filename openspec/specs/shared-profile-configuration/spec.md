@@ -39,3 +39,12 @@ The system SHALL reject malformed TOML, unsupported schema versions, missing req
 
 - **WHEN** a profile contains an invalid field or unsupported schema version
 - **THEN** loading fails with a recoverable validation error and no partial profile is returned
+
+### Requirement: Settings profile update
+
+Settings SHALL be able to replace the canonical shared profile only after validation succeeds.
+
+#### Scenario: Saving through settings
+
+- **WHEN** settings saves a validated profile
+- **THEN** it replaces the canonical shared profile file

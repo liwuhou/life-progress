@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Permissions for the on-demand settings window.","local":true,"windows":["settings"],"permissions":["core:default"]}}

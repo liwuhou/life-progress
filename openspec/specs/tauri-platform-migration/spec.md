@@ -41,3 +41,12 @@ The migrated tray icon SHALL preserve the existing left-click interaction entry 
 
 - **WHEN** the user left-clicks the system-tray icon
 - **THEN** the application receives the tray click event without terminating
+
+### Requirement: On-demand settings window
+
+The application MAY create a settings window only while the user is configuring the application; normal startup remains windowless.
+
+#### Scenario: Opening settings
+
+- **WHEN** the user requests settings from the tray
+- **THEN** the application creates or focuses the settings window
